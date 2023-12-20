@@ -3,7 +3,7 @@ response = requests.get("https://uk.wikipedia.org/")
 print(response.status_code)
 print(response.text)"""
 
-import socket
+"""import socket
 import threading
 from datetime import datetime
 import json
@@ -46,4 +46,4 @@ try:
 except KeyboardInterrupt:
     print("You have exited the chat.")
 finally:
-    client.close()
+    client.close()"""
