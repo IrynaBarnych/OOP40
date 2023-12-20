@@ -1,29 +1,31 @@
 import socket
 
-# Створення сокету клієнта
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Підключення до сервера за IP-адресою та портом
-client_socket.connect(('127.0.0.1', 8080))
-
-print("Connected to the server.")
+# створення сокету
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind(("127.0.0.1", 8080))
+# чекаємо підключення клієнта
+server_socket.listen(1)
+print("Чекаємо з'єднання...")
 
 while True:
-    # Введення повідомлення для відправки серверу
-    location = input("Введіть країну-місто: ")
-    if not location:
-        break
-    # Надсилання повідомлення на сервер
-    client_socket.send(location.encode())
+    client_socket, address = server_socket.accept()
+    print(f"Підключення з {address} було створене!")
 
-    # Очікування отримання відповіді від сервера
-    response = client_socket.recv(1024).decode()
+    # обмін повідомлення
+    while True:
+        # очікуємо повідомлення від клієнта
+        message = client_socket.recv(1024).decode()
+        if message.lower() == 'exit':
+            break
+        print("Client: ", message)
+        response = input("Server: ")
+        client_socket.send(response.encode())
 
-    # Виведення отриманої відповіді
-    print(f"Server: {response}")
+    # Повідомлення завершення розмови
+    print("Розмову завершено")
 
-# Повідомлення про завершення розмови
-print("Conversation ended.")
+    # закриваємо з'єднання з клієнтом
+    client_socket.close()
 
-# Закриття з'єднання з сервером
-client_socket.close()
+    # Чекаємо нового клієнта
+    print("Чекаємо нового учасника розмови...")

@@ -1,28 +1,36 @@
 import socket
-import threading
-#створення сокету
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(("127.0.0.1", 8080))
-#чекаємо підключення клієнта
-server_socket.listen(5)
-print("Чекаємо з'єднанння...")
-#функція для обробки запитів клієнта
-def handle_client(client_socket, address):
-    print(f"Підключення з {address} було створене!")
-    while True:
-        location = client_socket.recv(1024).decode()
-        if not location:
-            break
-        with open("weather_data.txt", 'r') as file:
-            data = file.readlines()
-            for loc in data:
-                if location in loc:
-                    response = loc
-        client_socket.send(response.encode())
-    print("Клієнт відвалився")
-    client_socket.close()
+
+# Створення сокету клієнта
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Підключення до сервера за IP-адресою та портом
+client_socket.connect(('127.0.0.1', 8080))
+
+print("Підключено до сервера.")
+print("Введіть 'exit' для завершення розмови.")
 
 while True:
-    client_socket, address = server_socket.accept()
-    client_thread = threading.Thread(target=handle_client, args=(client_socket, address))
-    client_thread.start()
+    # Введення повідомлення для відправки серверу
+    message = input("Ви: ")
+
+    # Надсилання повідомлення на сервер
+    client_socket.send(message.encode())
+
+    # Перевірка, чи клієнт не хоче завершити розмову
+    if message.lower() == 'exit':
+        break
+
+    # Очікування отримання відповіді від сервера
+    response = client_socket.recv(1024).decode()
+
+    # Виведення отриманої відповіді
+    print(f"Сервер : {response}")
+
+# Повідомлення про завершення розмови
+print("Розмову завершено.")
+
+# Закриття з'єднання з сервером
+client_socket.close()
+
+# Чекаємо нового клієнта
+print("Чекаємо нового учасника розмови...")
