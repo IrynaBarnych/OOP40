@@ -10,14 +10,11 @@ print("Connected to the server.")
 
 while True:
     # Введення повідомлення для відправки серверу
-    message = input("You: ")
-
-    # Надсилання повідомлення на сервер
-    client_socket.send(message.encode())
-
-    # Перевірка, чи клієнт не хоче завершити розмову
-    if message.lower() == 'exit':
+    location = input("Введіть країну-місто: ")
+    if not location:
         break
+    # Надсилання повідомлення на сервер
+    client_socket.send(location.encode())
 
     # Очікування отримання відповіді від сервера
     response = client_socket.recv(1024).decode()

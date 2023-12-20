@@ -1,8 +1,3 @@
-"""import requests
-response = requests.get("https://uk.wikipedia.org/")
-print(response.status_code)
-print(response.text)"""
-
 import socket
 import threading
 from datetime import datetime
