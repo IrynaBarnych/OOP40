@@ -6,15 +6,18 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Підключення до сервера за IP-адресою та портом
 client_socket.connect(('127.0.0.1', 8080))
 
-print("Connected to the server.")
+print("Connected to the server. Please write  'exit' to end the conversation")
 
 while True:
     # Введення повідомлення для відправки серверу
-    location = input("Введіть країну-місто: ")
-    if not location:
-        break
+    message = input("You: ")
+
     # Надсилання повідомлення на сервер
-    client_socket.send(location.encode())
+    client_socket.send(message.encode())
+
+    # Перевірка, чи клієнт не хоче завершити розмову
+    if message.lower() == 'exit':
+        break
 
     # Очікування отримання відповіді від сервера
     response = client_socket.recv(1024).decode()
