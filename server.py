@@ -1,36 +1,39 @@
 import socket
+import threading
 
-# Створення сокету клієнта
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Створення сокету сервера
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Підключення до сервера за IP-адресою та портом
-client_socket.connect(('127.0.0.1', 8080))
+# Прив'язка серверного сокету до IP-адреси та порту
+server_socket.bind(("127.0.0.1", 8080))
 
-print("Підключено до сервера.")
-print("Введіть 'exit' для завершення розмови.")
+# Чекаємо підключення клієнта
+server_socket.listen(5)
+print("Чекаємо з'єднання...")
 
+# Функція для обробки запитів клієнта
+def handle_client(client_socket, address):
+    print(f"Підключення з {address} було створене!")
+
+    while True:
+        message = client_socket.recv(1024).decode()
+
+        # Перевірка, чи клієнт не хоче завершити розмову
+        if message.lower() == 'exit':
+            break
+
+        # Виведення отриманого повідомлення
+        print(f"{address}: {message}")
+
+        # Відправка відповіді клієнту
+        response = input("Ви: ")
+        client_socket.send(response.encode())
+
+    print("Клієнт відвалився")
+    client_socket.close()
+
+# Очікування нових підключень
 while True:
-    # Введення повідомлення для відправки серверу
-    message = input("Ви: ")
-
-    # Надсилання повідомлення на сервер
-    client_socket.send(message.encode())
-
-    # Перевірка, чи клієнт не хоче завершити розмову
-    if message.lower() == 'exit':
-        break
-
-    # Очікування отримання відповіді від сервера
-    response = client_socket.recv(1024).decode()
-
-    # Виведення отриманої відповіді
-    print(f"Сервер : {response}")
-
-# Повідомлення про завершення розмови
-print("Розмову завершено.")
-
-# Закриття з'єднання з сервером
-client_socket.close()
-
-# Чекаємо нового клієнта
-print("Чекаємо нового учасника розмови...")
+    client_socket, address = server_socket.accept()
+    client_thread = threading.Thread(target=handle_client, args=(client_socket, address))
+    client_thread.start()

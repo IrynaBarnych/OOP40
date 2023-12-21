@@ -1,31 +1,35 @@
 import socket
 
-# створення сокету
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(("127.0.0.1", 8080))
-# чекаємо підключення клієнта
-server_socket.listen(1)
-print("Чекаємо з'єднання...")
+# Створення сокету клієнта
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Підключення до сервера за IP-адресою та портом
+client_socket.connect(('127.0.0.1', 8080))
+
+print("Підключення до сервіру. Наберіть 'exit' для завершення розмови")
 
 while True:
-    client_socket, address = server_socket.accept()
-    print(f"Підключення з {address} було створене!")
+    # Введення повідомлення для відправки серверу
+    message = input("Ви: ")
 
-    # обмін повідомлення
-    while True:
-        # очікуємо повідомлення від клієнта
-        message = client_socket.recv(1024).decode()
-        if message.lower() == 'exit':
-            break
-        print("Client: ", message)
-        response = input("Server: ")
-        client_socket.send(response.encode())
+    # Надсилання повідомлення на сервер
+    client_socket.send(message.encode())
 
-    # Повідомлення завершення розмови
-    print("Розмову завершено")
+    # Перевірка, чи клієнт не хоче завершити розмову
+    if message.lower() == 'exit':
+        break
 
-    # закриваємо з'єднання з клієнтом
-    client_socket.close()
+    # Очікування отримання відповіді від сервера
+    response = client_socket.recv(1024).decode()
 
-    # Чекаємо нового клієнта
-    print("Чекаємо нового учасника розмови...")
+    # Виведення отриманої відповіді
+    print(f"Server: {response}")
+
+# Повідомлення про завершення розмови
+print("Conversation ended.")
+
+# Закриття з'єднання з сервером
+client_socket.close()
+
+ # Чекаємо нового клієнта
+print("Чекаємо нового учасника розмови...")
