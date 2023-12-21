@@ -1,25 +1,23 @@
 import socket
 import threading
-#створення сокету
+from googletrans import Translator
+
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(("127.0.0.1", 8080))
-#чекаємо підключення клієнта
 server_socket.listen(5)
-print("Чекаємо з'єднанння...")
-#функція для обробки запитів клієнта
+print("Очікуємо підключення...")
+
+translator = Translator()
+
 def handle_client(client_socket, address):
-    print(f"Підключення з {address} було створене!")
+    print(f"Підключення від {address} встановлено!")
     while True:
-        location = client_socket.recv(1024).decode()
-        if not location:
+        text_to_translate = client_socket.recv(1024).decode()
+        if not text_to_translate:
             break
-        with open("weather_data.txt", 'r') as file:
-            data = file.readlines()
-            for loc in data:
-                if location in loc:
-                    response = loc
-        client_socket.send(response.encode())
-    print("Клієнт відвалився")
+        translated_text = translator.translate(text_to_translate, dest='en').text
+        client_socket.send(translated_text.encode())
+    print("Клієнт відключився")
     client_socket.close()
 
 while True:

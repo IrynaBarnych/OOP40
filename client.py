@@ -1,29 +1,21 @@
+
 import socket
 
-# Створення сокету клієнта
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Підключення до сервера за IP-адресою та портом
 client_socket.connect(('127.0.0.1', 8080))
 
-print("Connected to the server.")
+print("Підключено до сервера.")
 
 while True:
-    # Введення повідомлення для відправки серверу
-    location = input("Введіть країну-місто: ")
-    if not location:
+    text_to_translate = input("Введіть текст для перекладу (або натисніть Enter для виходу): ")
+    if not text_to_translate:
         break
-    # Надсилання повідомлення на сервер
-    client_socket.send(location.encode())
 
-    # Очікування отримання відповіді від сервера
-    response = client_socket.recv(1024).decode()
+    client_socket.send(text_to_translate.encode())
+    translated_text = client_socket.recv(1024).decode()
 
-    # Виведення отриманої відповіді
-    print(f"Server: {response}")
+    print(f"Перекладений текст: {translated_text}")
 
-# Повідомлення про завершення розмови
-print("Conversation ended.")
-
-# Закриття з'єднання з сервером
+print("Розмова завершена.")
 client_socket.close()
+
