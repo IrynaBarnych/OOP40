@@ -12,10 +12,13 @@ translator = Translator()
 def handle_client(client_socket, address):
     print(f"Підключення від {address} встановлено!")
     while True:
-        text_to_translate = client_socket.recv(1024).decode()
-        if not text_to_translate:
+        # Receive target language and text from the client
+        data = client_socket.recv(1024).decode()
+        if not data:
             break
-        translated_text = translator.translate(text_to_translate, dest='en').text
+
+        target_language, text_to_translate = data.split('|')
+        translated_text = translator.translate(text_to_translate, dest=target_language).text
         client_socket.send(translated_text.encode())
     print("Клієнт відключився")
     client_socket.close()
