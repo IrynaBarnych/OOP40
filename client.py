@@ -6,7 +6,7 @@ client_socket.connect(('127.0.0.1', 8080))
 print("Підключено до сервера.")
 
 while True:
-    target_language = input("Введіть мову для перекладу (або натисніть Enter для виходу): ")
+    target_language = input("Введіть мову для перекладу (наприклад: uk, pl або натисніть Enter для виходу): ")
     if not target_language:
         break
 
