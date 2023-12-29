@@ -1,5 +1,10 @@
-# client.py
+# client2.py
 import socket
+
+def print_board(board):
+    print("-------------")
+    for i in range(3):
+        print("|", board[i * 3], "|", board[i * 3 + 1], "|", board[i * 3 + 2], "|")
 
 def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,7 +21,9 @@ def main():
             print("Гра закінчилася внічию!")
             break
 
-        print(client_socket.recv(1024).decode())  # Відображення поточного стану дошки
+        board = client_socket.recv(1024).decode()
+        print_board(board)
+
         move = input("Введіть ваш хід (1-9): ")
         client_socket.send(str(move).encode())
 
