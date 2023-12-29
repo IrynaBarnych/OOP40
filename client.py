@@ -1,26 +1,29 @@
 # client.py
 import socket
 
+def отримати_файл(client_socket, ім_файлу):
+    with open(ім_файлу, 'wb') as файл:
+        дані = client_socket.recv(1024)
+        while дані:
+            файл.write(дані)
+            дані = client_socket.recv(1024)
+
 def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('127.0.0.1', 8091))
+    client_socket.connect(('127.0.0.1', 8093))
 
-    print("Підключено до сервера.")
+    ім_файлу = input("Введіть ім'я файлу для відправлення: ")
+    client_socket.send(ім_файлу.encode())
 
-    while True:
-        game_status = client_socket.recv(1024).decode()
-        if game_status == "win":
-            print("Ви виграли!")
-            break
-        elif game_status == "draw":
-            print("Гра закінчилася внічию!")
-            break
+    відповідь = client_socket.recv(1024).decode()
+    print(відповідь)
 
-        print(client_socket.recv(1024).decode())  # Відображення поточного стану дошки
-        move = input("Введіть ваш хід (1-9): ")
-        client_socket.send(str(move).encode())
+    if відповідь.lower() == "готово":
+        отримати_файл(client_socket, ім_файлу)
+        print(f"Файл успішно отримано: {ім_файлу}")
+    else:
+        print("Відмовлено у передачі файлу.")
 
-    print("Гра завершена.")
     client_socket.close()
 
 if __name__ == "__main__":
