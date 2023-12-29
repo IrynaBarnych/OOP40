@@ -1,30 +1,54 @@
-# client.py
 import socket
+import asyncio
 
-def отримати_файл(client_socket, ім_файлу):
-    with open(ім_файлу, 'wb') as файл:
-        дані = client_socket.recv(1024)
-        while дані:
-            файл.write(дані)
-            дані = client_socket.recv(1024)
+async def receive_messages(client_socket):
+    while True:
+        try:
+            message = (await client_socket.recv(1024)).decode()
+            print(message)
+        except:
+            break
 
-def main():
+async def send_messages(client_socket):
+    while True:
+        message = input("Ви: ")
+        await client_socket.send(message.encode())
+
+        if message.lower() == 'вийти':
+            break
+
+async def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('127.0.0.1', 8093))
+    client_socket.connect(('127.0.0.1', 8099))
 
-    ім_файлу = input("Введіть ім'я файлу для відправлення: ")
-    client_socket.send(ім_файлу.encode())
+    response = (await client_socket.recv(1024)).decode()
+    print(response)
 
-    відповідь = client_socket.recv(1024).decode()
-    print(відповідь)
+    if response == "Введіть ваше ім'я користувача: ":
+        username = input("Ім'я користувача: ")
+        await client_socket.send(username.encode())
 
-    if відповідь.lower() == "готово":
-        отримати_файл(client_socket, ім_файлу)
-        print(f"Файл успішно отримано: {ім_файлу}")
-    else:
-        print("Відмовлено у передачі файлу.")
+    response = (await client_socket.recv(1024)).decode()
+    print(response)
+
+    if response == "Введіть ваш пароль: ":
+        password = input("Пароль: ")
+        await client_socket.send(password.encode())
+
+    login_status = (await client_socket.recv(1024)).decode()
+    print(login_status)
+
+    if login_status == "Успішний вхід!":
+        print("Ви тепер у чаті.")
+        print("Напишіть 'вийти', щоб залишити чат.")
+
+        asyncio.create_task(receive_messages(client_socket))
+        await send_messages(client_socket)
+
+        farewell = (await client_socket.recv(1024)).decode()
+        print(farewell)
 
     client_socket.close()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
