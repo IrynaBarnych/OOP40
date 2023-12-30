@@ -3,6 +3,7 @@ import threading
 
 active_clients = set()
 user_credentials = {}
+message_history = []
 
 def read_user_credentials():
     with open('users.txt', 'r') as file:
@@ -12,12 +13,19 @@ def read_user_credentials():
 
 def broadcast(message, sender_socket):
     for client_socket in active_clients:
-        if client_socket != sender_socket:
-            try:
-                client_socket.send(message.encode())
-            except:
-                # Handle any errors that occur when sending the message
-                pass
+        try:
+            client_socket.send(message.encode())
+        except:
+            pass
+
+    message_history.append(message)
+
+def send_message_history(client_socket):
+    for message in message_history:
+        try:
+            client_socket.send(message.encode())
+        except:
+            pass
 
 def handle_client(client_socket):
     client_socket.send("Введіть ваше ім'я користувача: ".encode())
@@ -29,6 +37,7 @@ def handle_client(client_socket):
     if username in user_credentials and user_credentials[username] == password:
         client_socket.send("Успішний вхід!".encode())
         active_clients.add(client_socket)
+        send_message_history(client_socket)
         broadcast(f"{username} приєднався до чату.", client_socket)
     else:
         client_socket.send("Вхід не вдалий. Невірні облікові дані.".encode())
@@ -50,7 +59,7 @@ def main():
     read_user_credentials()
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(("127.0.0.1", 8073))
+    server_socket.bind(("127.0.0.1", 8071))
     server_socket.listen(5)
     print("Сервер чату запущено.")
 

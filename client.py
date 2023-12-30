@@ -7,12 +7,11 @@ def receive_messages(client_socket):
             message = client_socket.recv(1024).decode()
             print(message)
         except:
-            # Handle any errors that occur when receiving messages
             break
 
 def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('127.0.0.1', 8073))
+    client_socket.connect(('127.0.0.1', 8071))
 
     response = client_socket.recv(1024).decode()
     print(response)
@@ -44,9 +43,6 @@ def main():
 
             if message.lower() == 'вийти':
                 break
-
-        farewell = client_socket.recv(1024).decode()
-        print(farewell)
 
     client_socket.close()
 
