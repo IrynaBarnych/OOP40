@@ -1,54 +1,54 @@
 import socket
-import asyncio
+import threading
 
-async def receive_messages(client_socket):
+def receive_messages(client_socket):
     while True:
         try:
-            message = (await client_socket.recv(1024)).decode()
+            message = client_socket.recv(1024).decode()
             print(message)
         except:
+            # Handle any errors that occur when receiving messages
             break
 
-async def send_messages(client_socket):
-    while True:
-        message = input("Ви: ")
-        await client_socket.send(message.encode())
-
-        if message.lower() == 'вийти':
-            break
-
-async def main():
+def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('127.0.0.1', 8099))
+    client_socket.connect(('127.0.0.1', 8073))
 
-    response = (await client_socket.recv(1024)).decode()
+    response = client_socket.recv(1024).decode()
     print(response)
 
     if response == "Введіть ваше ім'я користувача: ":
         username = input("Ім'я користувача: ")
-        await client_socket.send(username.encode())
+        client_socket.send(username.encode())
 
-    response = (await client_socket.recv(1024)).decode()
+    response = client_socket.recv(1024).decode()
     print(response)
 
     if response == "Введіть ваш пароль: ":
         password = input("Пароль: ")
-        await client_socket.send(password.encode())
+        client_socket.send(password.encode())
 
-    login_status = (await client_socket.recv(1024)).decode()
+    login_status = client_socket.recv(1024).decode()
     print(login_status)
 
     if login_status == "Успішний вхід!":
         print("Ви тепер у чаті.")
         print("Напишіть 'вийти', щоб залишити чат.")
 
-        asyncio.create_task(receive_messages(client_socket))
-        await send_messages(client_socket)
+        receive_thread = threading.Thread(target=receive_messages, args=(client_socket,))
+        receive_thread.start()
 
-        farewell = (await client_socket.recv(1024)).decode()
+        while True:
+            message = input("Ви: ")
+            client_socket.send(message.encode())
+
+            if message.lower() == 'вийти':
+                break
+
+        farewell = client_socket.recv(1024).decode()
         print(farewell)
 
     client_socket.close()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
